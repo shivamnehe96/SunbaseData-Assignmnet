@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+</head>
+<body>
+    <h2>Login</h2>
+    <form id="loginForm">
+        <label for="login_id">ID:</label><br>
+        <input type="text" id="login_id" name="login_id"><br>
+        <label for="password">Password:</label><br>
+        <input type="password" id="password" name="password"><br><br>
+        <button type="button" onclick="authenticateUser()">Submit</button>
+    </form>
+
+    <script>
+        function authenticateUser() {
+            const url = ': https://qa2.sunbasedata.com/sunbase/portal/api/assignment_auth.jsp'; // Change the URL as per your JSON Server configuration
+
+            const data = {
+                login_id: document.getElementById('login_id').value,
+                password: document.getElementById('password').value
+            };
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                const token = data.token;
+                // Use the token for further API calls
+                // Example:
+                // fetch('https://qa2.sunbasedata.com/your_endpoint', {
+                //     method: 'GET',
+                //     headers: {
+                //         Authorization: `Bearer ${token}`,
+                //         'Content-Type': 'application/json'
+                //     }
+                // })
+                // .then(response => response.json())
+                // .then(data => console.log(data))
+                // .catch(error => console.error('Error:', error));
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Management</title>
+</head>
+<body>
+    <h2>Customer List</h2>
+    <ul id="customerList"></ul>
+
+    <h2>Delete Customer</h2>
+    <form id="deleteCustomerForm">
+        <label for="delete_uuid">UUID:</label><br>
+        <input type="text" id="delete_uuid" name="delete_uuid"><br><br>
+        <button type="button" onclick="deleteCustomer()">Delete</button>
+    </form>
+
+    <h2>Update Customer</h2>
+    <form id="updateCustomerForm">
+        <label for="update_uuid">UUID:</label><br>
+        <input type="text" id="update_uuid" name="update_uuid"><br>
+        <label for="update_first_name">First Name:</label><br>
+        <input type="text" id="update_first_name" name="update_first_name"><br>
+        <label for="update_last_name">Last Name:</label><br>
+        <input type="text" id="update_last_name" name="update_last_name"><br>
+        <label for="update_street">Street:</label><br>
+        <input type="text" id="update_street" name="update_street"><br>
+        <label for="update_address">Address:</label><br>
+        <input type="text" id="update_address" name="update_address"><br>
+        <label for="update_city">City:</label><br>
+        <input type="text" id="update_city" name="update_city"><br>
+        <label for="update_state">State:</label><br>
+        <input type="text" id="update_state" name="update_state"><br>
+        <label for="update_email">Email:</label><br>
+        <input type="text" id="update_email" name="update_email"><br>
+        <label for="update_phone">Phone:</label><br>
+        <input type="text" id="update_phone" name="update_phone"><br><br>
+        <button type="button" onclick="updateCustomer()">Update</button>
+    </form>
+
+    <script>
+        const token = 'token_recieved_in_authentication_API_call'; // Replace with the actual token
+
+        function getCustomerList() {
+            fetch('https://qa2.sunbasedata.com/sunbase/portal/api/assignment.jsp?cmd=get_customer_list', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                const customerList = document.getElementById('customerList');
+                customerList.innerHTML = '';
+                data.forEach(customer => {
+                    const li = document.createElement('li');
+                    li.appendChild(document.createTextNode(`Name: ${customer.first_name} ${customer.last_name}, Email: ${customer.email}, Phone: ${customer.phone}`));
+                    customerList.appendChild(li);
+                });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+
+        function deleteCustomer() {
+            const uuid = document.getElementById('delete_uuid').value;
+            fetch('https://qa2.sunbasedata.com/sunbase/portal/api/assignment.jsp', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    cmd: 'delete',
+                    uuid: uuid
+                })
+            })
+            .then(response => {
+                if (response.status === 200) {
+                    alert('Customer deleted successfully');
+                } else if (response.status === 500) {
+                    alert('Error in deleting customer');
+                } else if (response.status === 400) {
+                    alert('UUID not found');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+
+        function updateCustomer() {
+            const uuid = document.getElementById('update_uuid').value;
+            const data = {
+                cmd: 'update',
+                uuid: uuid,
+                first_name: document.getElementById('update_first_name').value,
+                last_name: document.getElementById('update_last_name').value,
+                street: document.getElementById('update_street').value,
+                address: document.getElementById('update_address').value,
+                city: document.getElementById('update_city').value,
+                state: document.getElementById('update_state').value,
+                email: document.getElementById('update_email').value,
+                phone: document.getElementById('update_phone').value
+            };
+            fetch('https://qa2.sunbasedata.com/sunbase/portal/api/assignment.jsp', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                if (response.status === 200) {
+                    alert('Customer updated successfully');
+                } else if (response.status === 500) {
+                    alert('UUID not found');
+                } else if (response.status === 400) {
+                    alert('Body is Empty');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+
+        // Fetch and display the customer list on page load
+        window.onload = function() {
+            getCustomerList();
+        };
+    </script>
+</body>
+</html>
